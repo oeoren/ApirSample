@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ApirController</name>
+    </assembly>
+    <members>
+        <member name="M:ControllerLibrary.productsController.Post(ControllerLibrary.products)">
+            <summary>
+            Add a new product to the database
+            </summary>
+            <remarks> A link to the new product is added  </remarks>
+            <response code="201">OK</response>
+            <response code="521">Bad productname</response>
+            <response code="522">Product with name exists</response>
+        </member>
+    </members>
+</doc>
