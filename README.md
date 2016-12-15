@@ -45,45 +45,44 @@ And the stored procedures for the Products Resource are defined as:
 
 ## The sample table
 You need a test database where we can create the products sample table.
-~~~~
+```sql
 CREATE TABLE Products
 (
 	ProductID int IDENTITY(1,1) PRIMARY KEY,
 	ProductName varchar(100) NOT NULL
 )
 GO
-INSERT INTO Products(ProductName) VALUES ('Widget 1')
+INSERT INTO Products(ProductName) VALUES ('Widget 1') , ('Widget 2')
 GO
-INSERT INTO Products(ProductName) VALUES ('Widget 2')
-GO
-~~~~
+```
+
 ## Reading and defining a resource.
 
 In the GET procedure we return one or a list of resources. 
 It also defines the structure of the resurce. 
 
-~~~~
+```sql
 CREATE PROCEDURE API_Products_Get (@ID int = NULL) 
 AS
     SELECT ProductId, ProductName 
         FROM Products 
         WHERE ProductID = @ID OR  @ID IS NULL
-~~~~
+```
 
 ## Updating a resource
 An update procedure will respond to the Put HTTP verb. In this example we want to be able to change the name of the product.
-~~~~
+```sql
 CREATE PROCEDURE API_Products_Put(@ID int, @ProductName VARCHAR(100))
 AS
     UPDATE Products SET ProductName = @ProductName 
     WHERE ProductID = @ID
-~~~~
+```
 
 This may be a good place to introduce som error handling. We see that the two parameters have no default values. A runtime error will occur if this is no value is set.
 
 We could check for a valid @ID 
 
-~~~~
+```sql
 ALTER PROCEDURE API_Products_Put(@ID int, @ProductName VARCHAR(100))
 AS
     IF NOT EXISTS(SELECT ProductID FROM Products 
@@ -95,7 +94,7 @@ AS
     UPDATE Products SET ProductName = @ProductName 
     WHERE ProductID = @ID
     RETURN 200 –- OK
-~~~~
+```
 
 The RAISERROR uses a severity level of 1 which means a warning in TSQL. The execution continues and returns 400 which will be the HTTP return code. The message “Unknown Product” is returned to the caller as a message.
 If the UPDATE was successful a 200 is returned.
@@ -107,35 +106,34 @@ Note: If you leave out the RETURN 200 a zero will be returned  which will be tra
 
 The POST procedure may be simply
 
-~~~~
+```sql
 CREATE PROCEDURE API_Products_Post(@ProductName VARCHAR(100))
 AS
 	INSERT INTO Products(ProductName) VALUES(@ProductName)
-~~~~
-
+```
 
 
 It is useful to be able to return the ID of the newly created row. 
 We can do this like:
  
-~~~~
+```sql 
 CREATE PROCEDURE API_Products_Post(
 @ProductName VARCHAR(100), @NewId int OUTPUT)
 AS
 	INSERT INTO Products(ProductName) VALUES(@ProductName)
 	SET @NewId  = @@IDENTITY
 	RETURN 200
-~~~~
+```
 Apir constructs the URI of the new Product and returns it in the HTTP header to the client. 
 
 ## Deleting a resource
 
 Finally the delete procedure may be simple:
-~~~~
+```sql
 CREATE PROCEDURE API_Products_Delete(@ID int)
 AS
 	DELETE FROM Products WHERE ProductID = @ID
-~~~~
+```
 
 #  Creating the WebApi site
 With the four Stored Procedures we have all the code needed for the Product resource.
@@ -230,7 +228,7 @@ code. It is a great for API documentation since it can be used in Swagger and li
 
 Lets change the procedure for inserting new products to make it more production ready.
 
-~~~~
+```sql
 --- <summary> 
 --- Add a new product to the database
 --- </summary>  
@@ -255,8 +253,9 @@ AS
 
 	INSERT INTO Products(ProductName) VALUES(@ProductName)
 	SET @NewId  = @@IDENTITY
-	RETURN 201
-~~~~
+RETURN 201
+
+```
 
 One code change is needed for adding the XML comments to Swagger. 
 In the App_Start\SwaggerConfig.cs file at line 100 insert the line:
